@@ -1,3 +1,13 @@
+/**
+ * This program is twitter engine with twitter4j.
+ * The expected functions includes tweet search, user search, 
+ * relation search, etc on.
+ * 
+ * Author: Danny Gao at polyu
+ * email: gaodehong_polyu@163.com
+ * 
+ * 
+ * */
 package gh.polyu.twitter4jEngine;
 
 import java.util.Hashtable;
