@@ -10,7 +10,7 @@ import gh.polyu.common.CommonFunctionDateFormat;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import twitter4j.Tweet;
+import twitter4j.Status;
 
 /**
  *
@@ -46,46 +46,42 @@ public class _TweetInfo {
 		this.strJson = strJson;
 	}
 
-	public _TweetInfo(Tweet t)
+	public _TweetInfo(Status t)
     {
     	Tweet2TweetInfo(t);
     }
     
-    public _TweetInfo(Tweet t, String trending)
+    public _TweetInfo(Status t, String trending)
     {
     	Tweet2TweetInfo(t, trending);
     }
     
-    public void Tweet2TweetInfo(Tweet t, String trending)
+    public void Tweet2TweetInfo(Status t, String trending)
 	{
-		this.setlFromUsr(t.getFromUserId());
-		this.setStrFromUsrName(t.getFromUser());
+		this.setlFromUsr(t.getUser().getId());
+		this.setStrFromUsrName(t.getUser().getName());
 		
 		this.setStrTrend(trending);
 		
 		this.setTweetTimestamp(
 				CommonFunctionDateFormat.String2Timestamp
 				(t.getCreatedAt().toString()));
-		
-        this.setlToUsr(t.getToUserId());
-        this.setStrToUsr(t.getToUser());        
+		     
         this.setlId(t.getId());        
 		this.setStrText(t.getText());	
 		//this.setStrJson(CommonFunction.Object2Json(t));
 		
 	}
     
-    public void Tweet2TweetInfo(Tweet t)
+    public void Tweet2TweetInfo(Status t)
 	{
-		this.setlFromUsr(t.getFromUserId());
-		this.setStrFromUsrName(t.getFromUser());
+		this.setlFromUsr(t.getUser().getId());
+		this.setStrFromUsrName(t.getUser().getName());
 		
 		this.setTweetTimestamp(
 				CommonFunctionDateFormat.String2Timestamp
 				(t.getCreatedAt().toString()));
 		
-        this.setlToUsr(t.getToUserId());
-        this.setStrToUsr(t.getToUser());        
         this.setlId(t.getId());        
 		this.setStrText(t.getText());	
 		this.setStrJson(CommonFunction.Object2Json(t));

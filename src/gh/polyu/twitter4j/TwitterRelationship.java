@@ -95,6 +95,7 @@ public class TwitterRelationship {
 			
 			ArrayList<Long> usersFr = twtRel.getFriends(twitter, ld);
 			System.out.println("Friends size:" + usersFr.size());
+			
 			for(long usr : usersFr)
 			{
 				System.out.println(usr);

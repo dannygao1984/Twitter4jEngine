@@ -18,6 +18,20 @@ import gh.polyu.thread.ThreadOfTwitterPool;
 
 public class Twitter4jEngine {
 	
+	/**
+	 * @param: 1st File contains N pairs of Key and Secret Twitter 
+	 * 		   2nd Updating time of new trending topics
+	 * */
+	public static void main(String[] args) 
+	{
+		GlobalParameters.TREND_EXISTING_HOURS = 168;
+		
+		Twitter4jEngine engine = new Twitter4jEngine();
+		engine.InitialAll();
+		
+		engine.MainLoop();
+	}
+	
 	private ThreadOfTwitterPool relationshipThread = null;
 	private ThreadOfTweets tweetsThread = null;
 	private Twitter[] authrizedTwitter = null;
@@ -33,14 +47,13 @@ public class Twitter4jEngine {
 		
 		while(true)
 		{
-			System.out.println("Main thread running...");
+			//System.out.println("Main thread running...");
 			try {
 				Thread.sleep(3000000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
+			}			
 			
 		}
 	}
@@ -88,18 +101,6 @@ public class Twitter4jEngine {
 		tweetsThread = new ThreadOfTweets(relationshipThread, this.hasTweetID);
 		
 	}
-	/**
-	 * @param: 1st File contains N pairs of Key and Secret Twitter 
-	 * 		   2nd Updating time of new trending topics
-	 * */
-	static public void main(String[] args)
-	{
-		GlobalParameters.TREND_EXISTING_HOURS = 168;
-		
-		Twitter4jEngine engine = new Twitter4jEngine();
-		engine.InitialAll();
-		
-		engine.MainLoop();
-	}
+	
 
 }

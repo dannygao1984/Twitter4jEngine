@@ -6,14 +6,14 @@ import java.util.List;
 
 import twitter4j.Query;
 import twitter4j.QueryResult;
-import twitter4j.Tweet;
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 
 public class SearchTweets {
 
-	public List<Tweet> searchTrendingTweets(Twitter twitter, String strQuery)
+	public List<Status> searchTrendingTweets(Twitter twitter, String strQuery)
 	{
 		
 		try {
@@ -26,19 +26,21 @@ public class SearchTweets {
 			//e.printStackTrace();
 			return null;
 		}
-	}   
-       
-	
-	
+	} 
 	
 	public static void main(String[] args) 
 	{       
 		Twitter twitter = new TwitterFactory().getInstance();
 		
-		List<Tweet> listTwts = new SearchTweets().searchTrendingTweets(
+		twitterOAuth twtOauth = new twitterOAuth();	
+		twtOauth.ReadProperties("properties/twitter4j.properties");
+		twtOauth.Authority(twitter, twtOauth.prop.getProperty("consumerKey"), 
+				twtOauth.prop.getProperty("consumerSecret"));
+		
+		List<Status> listTwts = new SearchTweets().searchTrendingTweets(
 				twitter, "Obama");
 		
-		for(Tweet twt : listTwts)
+		for(Status twt : listTwts)
 		{
 			System.out.println(twt.getId() + " " + twt.getText());
 		}

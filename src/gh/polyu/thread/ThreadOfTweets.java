@@ -2,13 +2,14 @@ package gh.polyu.thread;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
 import twitter4j.ResponseList;
+import twitter4j.Status;
 import twitter4j.Trend;
 import twitter4j.Trends;
-import twitter4j.Tweet;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -30,6 +31,7 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 	private TwitterDBHandle twitterDbHandle = new TwitterDBHandle();
 	private String table = "";
 	private GlobalParameterOfTweetsDownloadAndHyperlinkDecoder glb = null;
+	private TwitterTrending trend = new TwitterTrending();
 	
 	public ThreadOfTweets(Hashtable<String, _HyperlinkInfo> has,
 			GlobalParameterOfTweetsDownloadAndHyperlinkDecoder glb)
@@ -61,14 +63,13 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 	public ThreadOfTweets(ThreadOfTwitterPool pool, Hashtable<Long, Integer> hasTweetID)
 	{
 		this.hasTweetID = hasTweetID;
-		if (UpdateCurrentTrends() > 0)
-		{
-			System.out.println("Tweets and trends thread starting....");
-		}else
-		{
-			System.out.println("updating trends error");
-			System.exit(-1);
-		}
+		
+		System.out.println("Authorize the tooken");
+		
+		twitterOAuth twtOauth = new twitterOAuth();	
+		twtOauth.ReadProperties("properties/twitter4j.properties");
+		twtOauth.Authority(twitter, twtOauth.prop.getProperty("consumerKey"), 
+				twtOauth.prop.getProperty("consumerSecret"));
 		
 		System.out.println("Tweets Thread Database connecting .....");
 		twitterDbHandle.intialTwitterDBhandle();
@@ -81,16 +82,23 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 		{
 			System.out.println("Twitter database connect OK!");
 		}
+		
+		if (UpdateCurrentTrends() > 0)
+		{
+			System.out.println("Tweets and trends thread starting....");
+		}else
+		{
+			System.out.println("updating trends error");
+			System.exit(-1);
+		}
 	}
 	
 	
 	private int UpdateCurrentTrends() {
 		// TODO Auto-generated method stub
-		try {
-			ResponseList<Trends> trends1 = twitter.getDailyTrends();
+			Trends trends1 = trend.GetTrendingTopic(twitter);
 			int iAddTrends = 0;
-			Trends trends = trends1.get(0);
-			for (Trend trend : trends.getTrends()) 
+			for (Trend trend : trends1.getTrends()) 
 			{
 				if(!hasTrends.containsKey(trend.getName()))
 				{
@@ -115,12 +123,6 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 			System.out.println("Tatally #" + iAddTrends + " trends updated");
 			
 			return hasTrends.size();
-
-		} catch (TwitterException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			return 0;
-		} 
 	}
 	
 	public ArrayList<_TweetInfo> SearchAllTrendingTweets()
@@ -128,12 +130,12 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 		ArrayList<_TweetInfo> listTweets = new ArrayList<_TweetInfo>();
 		for(String trendName : hasTrends.keySet())
 		{
-			List<Tweet> list = searchTrendingTweets(twitter, trendName);
+			List<Status> list = searchTrendingTweets(twitter, trendName);
 			if(null == list)
 			{
 				continue;
 			}
-			for(Tweet twt : list)
+			for(Status twt : list)
 			{			
 				listTweets.add(new _TweetInfo(twt, trendName));
 			}
@@ -192,7 +194,8 @@ public class ThreadOfTweets extends SearchTweets implements Runnable {
 				}				
 				//System.out.println(twtInfo.toString());				
 			}
-			System.out.println("In tweet thread: #" + iCnt + " tweets are insert to DB");
+			System.out.println("In tweet thread: #" + iCnt + " tweets are insert to DB\t\t" 
+						 + new Date(System.currentTimeMillis()));
 			
 			// Extract all the urls and write to hashtable
 //			ArrayList<String> listUrls = new ArrayList<String>();

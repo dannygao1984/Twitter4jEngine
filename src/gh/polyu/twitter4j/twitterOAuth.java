@@ -38,14 +38,15 @@ public class twitterOAuth {
      * @param args message
      */
 	
-	static public Properties prop = new Properties();
-	static private File file = new File("twitterProperties/twitter4j.properties");
+	public Properties prop = new Properties();
+	private File file = null;
 	
 	
-	static public void ReadProperties()
+	public void ReadProperties()
 	{
 		InputStream is = null;
         try {
+        	file = new File("properties/twitter4j.properties");
             if (file.exists()) {
                 is = new FileInputStream(file);
                 prop.load(is);
@@ -64,9 +65,9 @@ public class twitterOAuth {
         }
 	}
 	
-	static public void ReadProperties(String strfile)
+	public void ReadProperties(String strfile)
 	{
-		File file = new File(strfile);
+		file = new File(strfile);
 		
 		InputStream is = null;
         try {
@@ -89,11 +90,12 @@ public class twitterOAuth {
 	}
 	
 	static boolean bAuthorized = false;
-	static public int Authority(Twitter twitter, String consumerKey, String consumerSecret)
+	public int Authority(Twitter twitter, String consumerKey, String consumerSecret)
 	{
 		twitterOAuth.bAuthorized = true;
 			    
-		try {            
+		try { 
+			System.out.println(consumerKey + consumerSecret);
             twitter.setOAuthConsumer(consumerKey, consumerSecret);
            
             RequestToken requestToken = twitter.getOAuthRequestToken();
@@ -131,7 +133,7 @@ public class twitterOAuth {
             System.out.println("Got access token.");
             System.out.println("Access token: " + accessToken.getToken());
             System.out.println("Access token secret: " + accessToken.getTokenSecret());
-            System.out.println("Successfully stored access token to " + file.getAbsolutePath() + ".");
+            
             return 1;
         } catch (TwitterException te) {
             te.printStackTrace();
@@ -150,13 +152,21 @@ public class twitterOAuth {
 		return bAuthorized;
 	}
 	
+	/**
+	 * @param args
+	 */
+	
 	public static void main(String[] args) 
-	{       
+	{     
+		
 		Twitter twitter = new TwitterFactory().getInstance();
+		
 		twitterOAuth twtOauth = new twitterOAuth();	
-		twtOauth.ReadProperties();
-		twtOauth.Authority(twitter, twitterOAuth.prop.getProperty("consumerKey"), 
-				twitterOAuth.prop.getProperty("consumerSecret"));		
+		twtOauth.ReadProperties("properties/twitter4j.properties");
+		twtOauth.Authority(twitter, twtOauth.prop.getProperty("consumerKey"), 
+				twtOauth.prop.getProperty("consumerSecret"));
+		
+		System.out.println(System.currentTimeMillis());
 		
     }
 

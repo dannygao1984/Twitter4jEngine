@@ -3,66 +3,56 @@ package gh.polyu.ajaxcrawler;
 import org.apache.commons.configuration.ConfigurationException;
 
 import com.crawljax.browser.EmbeddedBrowser.BrowserType;
-import com.crawljax.condition.UrlCondition;
 import com.crawljax.core.CrawljaxController;
 import com.crawljax.core.CrawljaxException;
 import com.crawljax.core.configuration.CrawlSpecification;
 import com.crawljax.core.configuration.CrawljaxConfiguration;
 import com.crawljax.core.configuration.InputSpecification;
+import com.crawljax.core.configuration.ThreadConfiguration;
 
 
 public class ajaxcrawler {
 
-	private static final String URL = "http://twitter.com/#!/dannygao/followers";
+	private static final int MAX_DEPTH = 2;
+	private static final int MAX_NUMBER_STATES = 8;
 
-	private static final String ALL_ANCHORS = "a";
-	private static final String LANGUAGE_TOOLS = "Log in";
+	private static CrawljaxConfiguration getCrawljaxConfiguration() {
+		CrawljaxConfiguration config = new CrawljaxConfiguration();
+		config.setCrawlSpecification(getCrawlSpecification());
+		config.setThreadConfiguration(getThreadConfiguration());
+		config.setBrowser(BrowserType.chrome);
+		return config;
+	}
 
-	private static final String HEADER_XPATH = "//DIV[@data-user-id='user']";
-
-	private static final int MAX_CRAWL_DEPTH = 1;
-	private static final int MAX_STATES = 1000;
-
-	private ajaxcrawler() {
-		// Utility class
+	private static ThreadConfiguration getThreadConfiguration() {
+		ThreadConfiguration tc = new ThreadConfiguration();
+		tc.setBrowserBooting(true);
+		tc.setNumberBrowsers(1);
+		tc.setNumberThreads(1);
+		return tc;
 	}
 
 	private static CrawlSpecification getCrawlSpecification() {
-		CrawlSpecification crawler = new CrawlSpecification(URL);
+		CrawlSpecification crawler = new CrawlSpecification("twitter.com");
 
-		crawler.clickDefaultElements();
-		crawler.dontClick(ALL_ANCHORS).underXPath(HEADER_XPATH);
-		crawler.dontClick(ALL_ANCHORS).withText(LANGUAGE_TOOLS);
-		crawler.dontClick("input").withAttribute("type", "submit");
+		// click these elements
+		crawler.click("a");
+		crawler.click("input").withAttribute("type", "submit");
+
+		crawler.setInputSpecification(getInputSpecification());
 
 		// limit the crawling scope
-		crawler.setMaximumStates(MAX_STATES);
-		crawler.setDepth(MAX_CRAWL_DEPTH);
-
-		//crawler.setInputSpecification(getInputSpecification());	
-
-		// Make sure we only crawl Google and no external web site
-		crawler.addCrawlCondition("Only crawl Twitter", new UrlCondition("twitter"));
+		crawler.setMaximumStates(MAX_NUMBER_STATES);
+		crawler.setDepth(MAX_DEPTH);
 
 		return crawler;
 	}
 
 	private static InputSpecification getInputSpecification() {
 		InputSpecification input = new InputSpecification();
-
-		// enter "Crawljax" in the search field
-		input.field("q").setValue("Crawljax");
+		input.field("session[username_or_email]").setValue("dannygao");
+		input.field("session[password]").setValue("danny032533");
 		return input;
-	}
-
-	private static CrawljaxConfiguration getConfig() {
-		CrawljaxConfiguration crawljaxConfiguration = new CrawljaxConfiguration();
-		crawljaxConfiguration.setBrowser(BrowserType.ie);
-		crawljaxConfiguration.setCrawlSpecification(getCrawlSpecification());
-
-		// Generate a crawl report
-		// crawljaxConfiguration.addPlugin(new CrawlOverview());
-		return crawljaxConfiguration;
 	}
 
 	/**
@@ -71,7 +61,7 @@ public class ajaxcrawler {
 	 */
 	public static void main(String[] args) {
 		try {
-			CrawljaxController crawljax = new CrawljaxController(getConfig());
+			CrawljaxController crawljax = new CrawljaxController(getCrawljaxConfiguration());
 			crawljax.run();
 		} catch (CrawljaxException e) {
 			e.printStackTrace();
